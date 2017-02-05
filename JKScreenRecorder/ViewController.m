@@ -1,13 +1,51 @@
-# JKScreenRecorder
-JKScreenRecorder(屏幕录制),use RPScreenRecorder of ReplayKit.framework  supports iOS9  and later, use AVAssetWriter of AVFoundation.framework supports iOS8
+//
+//  ViewController.m
+//  JKScreenRecorder
+//
+//  Created by Jakey on 2017/2/5.
+//  Copyright © 2017年 Jakey. All rights reserved.
+//
 
-应用内屏幕录制功能,iOS9之后使用原生ReplayKit进行录制,iOS8及以后使用截图方式保存视频.
+#import "ViewController.h"
+#import <AssetsLibrary/AssetsLibrary.h>
+@interface ViewController ()
 
-## 使用方法
+@end
+
+@implementation ViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view, typically from a nib.
+     _displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(tick:)];
+    [_displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSRunLoopCommonModes];
+     [_displayLink setPaused:NO];
+}
+
+- (void)tick:(CADisplayLink *)link {
+    if (_lastTime == 0) {
+        _lastTime = link.timestamp;
+        return;
+    }
+    
+    _count++;
+    NSTimeInterval interval = link.timestamp - _lastTime;
+    if (interval < 1) return;
+    _lastTime = link.timestamp;
+    float fps = _count / interval;
+    _count = 0;
+    
+    NSString *text = [NSString stringWithFormat:@"%d FPS",(int)round(fps)];
+    self.fpsLabel.text = text;
+    
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
 
 
-开始录制
-```
 - (IBAction)startTouched:(id)sender {
     _sreenRecorder = [[JKScreenRecorder alloc]init];
     //不区分系统版本 直接使用截图合成视频
@@ -21,10 +59,6 @@ JKScreenRecorder(屏幕录制),use RPScreenRecorder of ReplayKit.framework  supp
     }];
 }
 
-```
-结束录制
-
-```
 - (IBAction)stopTouched:(id)sender {
     [_sreenRecorder stopRecordingWithHandler:^(UIViewController *previewViewController, NSString *videoPath, NSError *error) {
         
@@ -53,9 +87,4 @@ JKScreenRecorder(屏幕录制),use RPScreenRecorder of ReplayKit.framework  supp
             
     }];
 }
-```
-
-## 效果
-![](https://raw.githubusercontent.com/shaojiankui/JKScreenRecorder/master/demo.gif)
-
-
+@end
